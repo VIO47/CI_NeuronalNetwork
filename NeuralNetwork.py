@@ -46,18 +46,19 @@ class NeuralNetwork:
         self.bias["1"] += self.learning_rate * loss
         self.weights["1"] += self.learning_rate * loss * np.array(X).reshape(2, 1)
 
-    def train(self, X, Y, epochs = 6):
-        loss_arr = []
+    def train(self, X, Y, epochs = 30):
+        accuracy_arr = []
         for epoch in range(epochs):
-            loss_total = 0
+            accuracy = 0
             for (x, target) in list(zip(X, Y)):
                 Z = NeuralNetwork.inference(self, x)
                 if Z != target:
                     loss = NeuralNetwork.loss_perceptron(self, Z, target)
-                    loss_total += loss
                     NeuralNetwork.update_weights(self, x, loss)
-            loss_arr.append(loss_total / 4.0)
-        return loss_arr
+                else:
+                    accuracy += 1
+            accuracy_arr.append(accuracy / 4.0)
+        return accuracy_arr
 
 
 

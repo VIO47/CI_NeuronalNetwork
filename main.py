@@ -26,22 +26,22 @@ def train_test():
     ]
 
     neural_network = nn(nn_structure, 0.1)
-    loss_arr_and = neural_network.train(X, Y_and)
-    loss_arr_or = neural_network.train(X, Y_or)
-    loss_arr_xor = neural_network.train(X, Y_xor)
+    accuracy_and = neural_network.train(X, Y_and)
+    accuracy_or = neural_network.train(X, Y_or)
+    accuracy_xor = neural_network.train(X, Y_xor)
 
 
     fig, axs = plt.subplots(3)
-    fig.suptitle("Error over epochs")
+    fig.suptitle("Accuracy over epochs")
     fig.tight_layout(pad=2.0)
     axs[0].set_title("AND gate")
-    axs[0].plot(loss_arr_and, 'tab:red')
+    axs[0].plot(accuracy_and, 'tab:red')
     axs[1].set_title("OR gate")
-    axs[1].plot(loss_arr_or, 'tab:green')
+    axs[1].plot(accuracy_or, 'tab:green')
     axs[2].set_title("XOR gate")
-    axs[2].plot(loss_arr_xor, 'tab:blue')
+    axs[2].plot(accuracy_xor, 'tab:blue')
     for ax in axs.flat:
-        ax.set(xlabel='epoch', ylabel='error')
+        ax.set(xlabel='epoch', ylabel='accuracy')
     plt.show()
 
 def print_hi(name):
