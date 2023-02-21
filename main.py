@@ -4,14 +4,15 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
 from sklearn.model_selection import train_test_split
-import NeuralNetwork as NN
+from NeuralNetwork import NeuralNetwork as nn
+import matplotlib.pyplot as plt
 
-def train_test(name):
+def train_test():
     #X = np.loadtxt("features.txt", dtype = 'i', delimiter = ',')
     #Y = np.loadtxt("targets.txt", dtype = 'i')
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
 
-    X = [[0, 0],
+    X = [[0.0, 0.0],
          [0, 1],
          [1, 0],
          [1, 1]]
@@ -24,10 +25,12 @@ def train_test(name):
         {"input_dim": 2, "output_dim": 1, "activation": "step"}
     ]
 
-    neural_network = NN(nn_structure, 0.1)
-    neural_network.update_weights(X, Y_and)
-
-
+    neural_network = nn(nn_structure, 0.1)
+    loss_arr = neural_network.train(X, Y_and)
+    plt.plot(loss_arr)
+    plt.xlabel("epoch")
+    plt.ylabel("error")
+    plt.show()
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -36,6 +39,6 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    train_test()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

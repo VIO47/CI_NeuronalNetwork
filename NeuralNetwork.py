@@ -1,5 +1,5 @@
 import numpy as np
-import Functions as Func
+from Functions import Functions as Func
 
 
 class NeuralNetwork:
@@ -40,31 +40,38 @@ class NeuralNetwork:
         return y_hat - y
 
     def inference(self, X):
-        return Func.step(np.dot(self.weights["1"], X) + self.bias["1"])
+        return Func.step(self, np.dot(self.weights["1"].T, X) + self.bias["1"])
 
     def update_weights(self, X, y, loss):
         self.bias["1"] += self.bias["1"] + self.learning_rate * loss
+        print(loss)
+        print(self.bias["1"][0])
+        print(self.learning_rate)
+        print(X)
         self.weights["1"] += self.learning_rate * loss * X
 
     def train(self, X, Y, epochs = 5):
-        for epoch in epochs:
-            for (x, target) in zip(X, Y):
-                Z = NeuralNetwork.inference(x)
+        loss_arr = []
+        for epoch in range(epochs):
+            for (x, target) in list(zip(X, Y)):
+                Z = NeuralNetwork.inference(self, x)
                 if Z != target:
-                    loss = NeuralNetwork.loss_perceptron(Z, target)
-                    NeuralNetwork.update_weights(X, Z, loss)
+                    loss = NeuralNetwork.loss_perceptron(self, Z, target)
+                    loss_arr.append(loss)
+                    NeuralNetwork.update_weights(self, x, Z, loss)
+        return loss_arr
 
 
 
     def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
         Z_curr = np.dot(W_curr, A_prev) + b_curr
-        if (activation is "relu"):
+        if (activation == "relu"):
             activation_function = Func.relu(Z_curr)
-        elif (activation is "tanh"):
+        elif (activation == "tanh"):
             activation_function = Func.tanh(Z_curr)
-        elif (activation is "sigmoid"):
+        elif (activation == "sigmoid"):
             activation_function = Func.sigmoid(Z_curr)
-        elif (activation is "step"):
+        elif (activation == "step"):
             activation_function = Func.step(Z_curr)
         else:
             raise Exception("Unsupported activation function")
