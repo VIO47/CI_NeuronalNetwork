@@ -37,28 +37,26 @@ class NeuralNetwork:
         return -1 * (np.dot(y, np.log(y_hat).T) + np.dot(1 - y, np.log(1 - y_hat).T))
 
     def loss_perceptron(self, y_hat, y):
-        return y_hat - y
+        return 1.0 * (y - y_hat)
 
     def inference(self, X):
         return Func.step(self, np.dot(self.weights["1"].T, X) + self.bias["1"])
 
-    def update_weights(self, X, y, loss):
-        self.bias["1"] += self.bias["1"] + self.learning_rate * loss
-        print(loss)
-        print(self.bias["1"][0])
-        print(self.learning_rate)
-        print(X)
-        self.weights["1"] += self.learning_rate * loss * X
+    def update_weights(self, X, loss):
+        self.bias["1"] += self.learning_rate * loss
+        self.weights["1"] += self.learning_rate * loss * np.array(X).reshape(2, 1)
 
-    def train(self, X, Y, epochs = 5):
+    def train(self, X, Y, epochs = 6):
         loss_arr = []
         for epoch in range(epochs):
+            loss_total = 0
             for (x, target) in list(zip(X, Y)):
                 Z = NeuralNetwork.inference(self, x)
                 if Z != target:
                     loss = NeuralNetwork.loss_perceptron(self, Z, target)
-                    loss_arr.append(loss)
-                    NeuralNetwork.update_weights(self, x, Z, loss)
+                    loss_total += loss
+                    NeuralNetwork.update_weights(self, x, loss)
+            loss_arr.append(loss_total / 4.0)
         return loss_arr
 
 

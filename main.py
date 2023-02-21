@@ -13,9 +13,9 @@ def train_test():
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
 
     X = [[0.0, 0.0],
-         [0, 1],
-         [1, 0],
-         [1, 1]]
+         [0.0, 1.0],
+         [1.0, 0.0],
+         [1.0, 1.0]]
 
     Y_and = [0, 0, 0, 1]
     Y_or = [0, 1, 1, 1]
@@ -26,10 +26,22 @@ def train_test():
     ]
 
     neural_network = nn(nn_structure, 0.1)
-    loss_arr = neural_network.train(X, Y_and)
-    plt.plot(loss_arr)
-    plt.xlabel("epoch")
-    plt.ylabel("error")
+    loss_arr_and = neural_network.train(X, Y_and)
+    loss_arr_or = neural_network.train(X, Y_or)
+    loss_arr_xor = neural_network.train(X, Y_xor)
+
+
+    fig, axs = plt.subplots(3)
+    fig.suptitle("Error over epochs")
+    fig.tight_layout(pad=2.0)
+    axs[0].set_title("AND gate")
+    axs[0].plot(loss_arr_and, 'tab:red')
+    axs[1].set_title("OR gate")
+    axs[1].plot(loss_arr_or, 'tab:green')
+    axs[2].set_title("XOR gate")
+    axs[2].plot(loss_arr_xor, 'tab:blue')
+    for ax in axs.flat:
+        ax.set(xlabel='epoch', ylabel='error')
     plt.show()
 
 def print_hi(name):
