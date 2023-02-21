@@ -44,10 +44,19 @@ class NeuralNetwork:
     def inference(self, X):
         return Func.step(np.dot(self.weights["1"], X) + self.bias["1"])
 
-    def update_weights(self, X, y):
-        loss = NeuralNetwork.loss_perceptron(NeuralNetwork.inference(X), y)
+    def update_weights(self, X, y, loss):
         self.bias["1"] += self.bias["1"] + self.learning_rate * loss
         self.weights["1"] += self.learning_rate * loss * X
+
+    def train(self, X, Y, epochs = 5):
+        for epoch in epochs:
+            for (x, target) in zip(X, Y):
+                Z = NeuralNetwork.inference(x)
+                if Z != target:
+                    loss = NeuralNetwork.loss_perceptron(Z, target)
+                    NeuralNetwork.update_weights(X, Z, loss)
+
+
 
     def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
         Z_curr = np.dot(W_curr, A_prev) + b_curr
