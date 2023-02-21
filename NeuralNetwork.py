@@ -38,6 +38,17 @@ class NeuralNetwork:
         m = y_hat.shape[1]
         return -1 * (np.dot(y, np.log(y_hat).T) + np.dot(1 - y, np.log(1 - y_hat).T))
 
+    def loss_perceptron(self, y_hat, y):
+        return y_hat - y
+
+    def inference(self, X):
+        return Func.step(np.dot(self.weights["1"], X) + self.bias["1"])
+
+    def update_weights(self, X, y):
+        loss = NeuralNetwork.loss_perceptron(NeuralNetwork.inference(X), y)
+        self.bias["1"] += self.bias["1"] + self.learning_rate * loss
+        self.weights["1"] += self.learning_rate * loss * X
+
     def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
         Z_curr = np.dot(W_curr, A_prev) + b_curr
         if (activation is "relu"):
