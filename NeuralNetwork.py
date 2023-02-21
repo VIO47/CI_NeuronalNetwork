@@ -11,9 +11,7 @@ class NeuralNetwork:
     #    {"input_dim": 4, "output_dim": 2, "activation": "relu"},
     #    {"input_dim": 2, "output_dim": 1, "activation": "relu"}
     #]
-    nn_structure = [
-        {"input_dim": 2, "output_dim": 1, "activation": "step"}
-    ]
+
 
     def __init__(self, nn_structure, learning_rate):
         self.learning_rate = learning_rate
