@@ -25,6 +25,12 @@ class Functions:
         sig = Functions.sigmoid(Z)
         return activation * sig * (1 - sig)
 
+    def step(self, Z):
+        return 1 if Z > 0 else 0
+
+    def step_back(self, Z):
+        return 0 if Z > 0 else np.Inf
+
     def relu_back(self, Z, activation):
         copy = np.array(activation, copy = True)
         copy[Z <= 0] = 0

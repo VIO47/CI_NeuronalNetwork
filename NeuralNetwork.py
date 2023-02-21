@@ -4,22 +4,25 @@ import Functions as Func
 
 class NeuralNetwork:
     # Change to reshape the ANN and change the used activation xfunctions
-    nn_architecture = [
-        {"input_dim": 10, "output_dim": 8, "activation": "relu"},
-        {"input_dim": 8, "output_dim": 6, "activation": "relu"},
-        {"input_dim": 6, "output_dim": 4, "activation": "relu"},
-        {"input_dim": 4, "output_dim": 2, "activation": "relu"},
-        {"input_dim": 2, "output_dim": 1, "activation": "relu"}
+    #nn_architecture = [
+    #    {"input_dim": 10, "output_dim": 8, "activation": "relu"},
+    #    {"input_dim": 8, "output_dim": 6, "activation": "relu"},
+    #    {"input_dim": 6, "output_dim": 4, "activation": "relu"},
+    #    {"input_dim": 4, "output_dim": 2, "activation": "relu"},
+    #    {"input_dim": 2, "output_dim": 1, "activation": "relu"}
+    #]
+    nn_structure = [
+        {"input_dim": 2, "output_dim": 1, "activation": "step"}
     ]
 
-    def __init__(self, nn_architecture, learning_rate):
+    def __init__(self, nn_structure, learning_rate):
         self.learning_rate = learning_rate
         np.random.seed(50)
-        number_layers = len(nn_architecture)
+        number_layers = len(nn_structure)
         self.weights = {}
         self.bias = {}
 
-        for index, layer in enumerate(nn_architecture):
+        for index, layer in enumerate(nn_structure):
             layer_index = index + 1
             input_size = layer["input_dim"]
             output_size = layer["output_dim"]
@@ -43,6 +46,8 @@ class NeuralNetwork:
             activation_function = Func.tanh(Z_curr)
         elif (activation is "sigmoid"):
             activation_function = Func.sigmoid(Z_curr)
+        elif (activation is "step"):
+            activation_function = Func.step(Z_curr)
         else:
             raise Exception("Unsupported activation function")
 
