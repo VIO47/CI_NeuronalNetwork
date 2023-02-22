@@ -14,7 +14,7 @@ class Functions:
     #Pass a vector for this function and the index of the value inside the vector
     def softmax(self, Z, index):
         sum = 0
-        for i in range(index):
+        for i in range(7):
             sum += np.linalg.norm(np.exp(Z[i]))
         return np.exp(Z[index]) / sum
 
@@ -37,16 +37,20 @@ class Functions:
         return copy
 
     def softmax_back(self, Z):
-        j_matrix = np.diag(Z)
-        for i in range(len(j_matrix)):
-            for j in range(len(j_matrix)):
-                if(i == j):
-                    j_matrix[i][j] = Z[i] * (1 - Z[i])
+        jacobian_matrix = np.zeros((len(Z), len(Z)))
+        softmax_x = Functions.softmax(Z)
+        for i in range(len(Z)):
+            for j in range(len(Z)):
+                if i == j:
+                    jacobian_matrix[i][j] = softmax_x[i] * (1 - softmax_x[i])
                 else:
-                    j_matrix[i][j] = -Z[i] * Z[j]
-
-        return j_matrix
+                    jacobian_matrix[i][j] = -softmax_x[i] * softmax_x[j]
+        return jacobian_matrix.diagonal()
 
     def tanh_back(self, Z):
         return 1 - np.tanh(Z)**2
+
+    def cross_entropy_back(self, y_hat, y):
+        batch_size = y.shape[0]
+        return -(y / y_hat) / batch_size
 

@@ -31,10 +31,11 @@ class NeuralNetwork:
     def accuracy(self, y_hat, y):
         return np.mean(np.argmax(y_hat, axis=1) == y)
 
-    # Have used binary cross-entropy as it's the most used loss function for classification problems
     def loss(self, y_hat, y):
-        m = y_hat.shape[1]
-        return -1 * (np.dot(y, np.log(y_hat).T) + np.dot(1 - y, np.log(1 - y_hat).T))
+        loss = 0
+        for (computed, target) in zip(y_hat, y):
+            loss -= target * np.log(computed)
+        return loss
 
     def loss_perceptron(self, y_hat, y):
         return 1.0 * (y - y_hat)
@@ -46,6 +47,13 @@ class NeuralNetwork:
         self.bias["1"] += self.learning_rate * loss
         self.weights["1"] += self.learning_rate * loss * np.array(X).reshape(2, 1)
 
+   # def update_weights_final_layer(self, X, loss):
+    #    #derivative for softmax
+    #    if(self.activation_function == "softmax")
+    #    self.bias -= self.learning_rate *
+
+    #def update_weights_hidden_layer(self, X, loss):
+        #derivative for relu
     def train(self, X, Y, epochs = 30):
         accuracy_arr = []
         for epoch in range(epochs):
@@ -62,7 +70,7 @@ class NeuralNetwork:
 
 
 
-    def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
+    def perceptron_forward_prop(self, A_prev, W_curr, b_curr, activation):
         Z_curr = np.dot(W_curr, A_prev) + b_curr
         if (activation == "relu"):
             activation_function = Func.relu(Z_curr)
