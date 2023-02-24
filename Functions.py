@@ -13,11 +13,8 @@ class Functions:
 
     #Pass a vector for this function and the index of the value inside the vector
     def softmax(self, Z):
-        #exp = np.exp(Z)
-        #return exp / np.sum(exp, axis = 1, keepdims = True)
-        Z -= np.max(Z)
-        sm = (np.exp(Z).T / np.sum(np.exp(Z), axis=0).T).T
-        return sm
+        e_x = np.exp(Z)
+        return e_x / e_x.sum()
 
     def tanh(self, Z):
         return np.tanh(Z)
@@ -48,9 +45,9 @@ class Functions:
          #       else:
          #           jacobian_matrix[i][j] = -softmax_x[i] * softmax_x[j]
         #return jacobian_matrix.diagonal()
-       s = Functions.softmax
-       s.reshape(-1, 1)
-       return np.diagflat(s) - np.dot(s, s.T)
+       exp_z = np.exp(Z)
+       sum = exp_z.sum()
+       return np.round(exp_z / sum, 3)
 
     def tanh_back(self, Z):
         return 1 - np.tanh(Z)**2

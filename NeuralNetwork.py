@@ -25,9 +25,8 @@ class NeuralNetwork:
             layer_index = index + 1
             input_size = layer["input_dim"]
             output_size = layer["output_dim"]
-
             self.weights[str(layer_index)] = np.random.randn(input_size, output_size)
-            self.bias[str(layer_index)] = np.random.randn(output_size, 1)
+            self.bias[str(layer_index)] = np.zeros((output_size, 1))
 
     def accuracy(self, y_hat, y):
         return np.mean(np.argmax(y_hat, axis=1) == y)
@@ -38,8 +37,7 @@ class NeuralNetwork:
             loss -= target * np.log(computed)
         return loss
 
-    def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
-        Z_curr = np.dot(A_prev, W_curr) + b_curr.T
+    def layer_forward_prop(self, Z_curr, activation):
         if (activation == "relu"):
             activation_function = Func.relu(self, Z_curr)
         elif (activation == "tanh"):
@@ -67,7 +65,9 @@ class NeuralNetwork:
             W_curr = self.weights[str(layer_index)]
             bias = self.bias[str(layer_index)]
 
-            A_curr, Z_curr = NeuralNetwork.layer_forward_prop(self, A_prev, W_curr, bias, activation_function)
+            Z = np.dot(A_prev, W_curr) + bias.T
+
+            A_curr, Z_curr = NeuralNetwork.layer_forward_prop(self, Z, activation_function)
             memory_activation[str(index)] = A_prev
             memory_intermediate[str(layer_index)] = Z_curr
 
@@ -88,20 +88,18 @@ class NeuralNetwork:
         elif(activation == "tanh"):
             activation_function = Func.tanh_back(self, Z_curr)
         elif(activation == "sigmoid"):
-            activation_function = Func.sigmoid_back(Z_curr, loss)
+            activation_function = Func.sigmoid_back(self, Z_curr)
         else:
             raise Exception("Unsupported activation function")
 
         dZ_curr = activation_function
-        dW_curr = np.dot(A_prev.T, dZ_curr) / A_prev.shape[0]
+        dW_curr = np.dot(A_prev.T, dZ_curr) / A_prev.shape[1]
         dbias_curr = np.sum(dZ_curr, axis = 0) / A_prev.shape[1]
-        loss_prev = np.dot(dZ_curr, dW_curr.T)
+        loss_prev = np.dot(dZ_curr, W_curr.T)
 
         return loss_prev, dW_curr, dbias_curr
 
     def full_back_prop(self, y_hat, y, memory_activation, memory_intermediate):
-        new_weights = {}
-        new_bias = {}
 
         dloss_prev = Func.cross_entropy_back(self, y_hat, y)
 
@@ -113,20 +111,20 @@ class NeuralNetwork:
             A_prev = memory_activation[str(prev_layer)]
             Z_curr = memory_intermediate[str(curr_layer)]
             W_curr = self.weights[str(curr_layer)]
-            bias = self.bias[str(curr_layer)]
 
             dloss_prev, dW_curr, dbias_curr = NeuralNetwork.layer_back_prop(self, dloss_curr, W_curr, Z_curr, A_prev, activation)
 
             #Update process incorporated in back-propagation
             self.weights[str(curr_layer)] = dW_curr
+            print(dW_curr)
+            print("____________________________")
             self.bias[str(curr_layer)] = dbias_curr
+            print(dbias_curr)
 
-    def train(self, X, y, batch_size, epochs = 50):
+    def train(self, X, y, batch_size, epochs = 2):
         accuracy_hystory = []
 
         for i in range(epochs):
-            #batch_X = np.array_split(X, batch_size)[:-1] + [X[-int(round(len(X)/batch_size)):]]
-            #batch_y = np.array_split(y, batch_size)[:-1] + [y[-int(round(len(y)/batch_size)):]]
             batch_X, batch_y = NeuralNetwork.split_in_batches(self, X, y, batch_size)
             for (mini_batch_X, mini_batch_y) in zip(batch_X, batch_y):
                 y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, mini_batch_X)

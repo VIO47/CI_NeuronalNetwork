@@ -26,12 +26,12 @@ def train_ANN():
     X_train = X_train.reshape([X_train.shape[0], -1])
     # X_val = X_test.reshape([X_val.shape[0], -1])
     X_test = X_test.reshape([X_test.shape[0], -1])
-    accuracy = ann.train(X_train, y_train, 4)
+    accuracy = ann.train(X_train, y_train, 1)
 
     #fig, axs = plt.subplot
     #axs[0].set_title("ANN Training")
     #axs[0].plot(accuracy, 'tab:red')
-    print(accuracy)
+    print(sum(accuracy) / len(accuracy))
 
 
 def train_test():
