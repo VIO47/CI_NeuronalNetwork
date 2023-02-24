@@ -21,9 +21,9 @@ class Functions:
     def tanh(self, Z):
         return np.tanh(Z)
 
-    def sigmoid_back(self, Z, activation):
+    def sigmoid_back(self, Z, loss):
         sig = Functions.sigmoid(Z)
-        return activation * sig * (1 - sig)
+        return loss * sig * (1 - sig)
 
     def step(self, Z):
         return 1 if Z > 0 else 0
@@ -31,8 +31,8 @@ class Functions:
     def step_back(self, Z):
         return 0 if Z > 0 else np.Inf
 
-    def relu_back(self, Z, activation):
-        copy = np.array(activation, copy = True)
+    def relu_back(self, Z, loss):
+        copy = np.array(loss, copy = True)
         copy[Z <= 0] = 0
         return copy
 
@@ -51,6 +51,6 @@ class Functions:
         return 1 - np.tanh(Z)**2
 
     def cross_entropy_back(self, y_hat, y):
-        batch_size = y.shape[0]
+        batch_size = len(y)
         return -(y / y_hat) / batch_size
 

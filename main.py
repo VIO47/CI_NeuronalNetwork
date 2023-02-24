@@ -9,26 +9,33 @@ import matplotlib.pyplot as plt
 from Perceptron import Perceptron as p
 from NN import ANN as ANN
 
+
 def train_ANN():
- X = np.loadtxt("data/features.txt", dtype = 'f', delimiter = ',')
- Y = np.loadtxt("data/targets.txt", dtype = 'i')
- X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
+    X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
+    Y = np.loadtxt("data/targets.txt", dtype='i')
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
- ann_struct = [[p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu"), p(10, 9, "relu")],
-               [p(9, 8, "relu"), p(9, 8, "relu"), p(9, 8, "relu"), p(9,8 , "relu"), p(9, 8, "relu"), p(9, 8, "relu"), p(9, 8, "relu"), p(9, 8, "relu")],
-               [p(8, 7, "softmax"), p(8, 7, "softmax"), p(8, 7, "softmax"), p(8, 7, "softmax"), p(8, 7, "softmax"), p(8, 7, "softmax"), p(8, 7, "softmax")]]
- ann = ANN(ann_struct, 0.1)
- X_train = X_train.reshape([X_train.shape[0], -1])
- #X_val = X_test.reshape([X_val.shape[0], -1])
- X_test = X_test.reshape([X_test.shape[0], -1])
- accuracy =  ann.train(X_train, y_train)
 
- fig, axs = plt.subplot
- axs[0].set_title("ANN Training")
- axs[0].plot(accuracy, 'tab:red')
+    structure = [
+        {"input_dim": 10, "output_dim": 9, "activation": "relu"},
+        {"input_dim": 9, "output_dim": 8, "activation": "relu"},
+        {"input_dim": 8, "output_dim": 7, "activation": "relu"}
+    ]
+    ann = nn(structure, 0.1)
+
+    X_train = X_train.reshape([X_train.shape[0], -1])
+    # X_val = X_test.reshape([X_val.shape[0], -1])
+    X_test = X_test.reshape([X_test.shape[0], -1])
+    accuracy = ann.train(X_train, y_train, 4)
+
+    fig, axs = plt.subplot
+    axs[0].set_title("ANN Training")
+    axs[0].plot(accuracy, 'tab:red')
+
+
 def train_test():
-    #X = np.loadtxt("features.txt", dtype = 'i', delimiter = ',')
-    #Y = np.loadtxt("targets.txt", dtype = 'i')
+    # X = np.loadtxt("features.txt", dtype = 'i', delimiter = ',')
+    # Y = np.loadtxt("targets.txt", dtype = 'i')
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
 
     X = [[0.0, 0.0],
@@ -40,15 +47,14 @@ def train_test():
     Y_or = [0, 1, 1, 1]
     Y_xor = [0, 1, 1, 0]
 
-   # nn_structure = [
-   #     {p(0.1, 2, 1, "step")}
-    #]
+    # nn_structure = [
+    #     {p(0.1, 2, 1, "step")}
+    # ]
 
     neural_network = p(0.1, 2, 1, "step")
     accuracy_and = neural_network.train(X, Y_and)
     accuracy_or = neural_network.train(X, Y_or)
     accuracy_xor = neural_network.train(X, Y_xor)
-
 
     fig, axs = plt.subplots(3)
     fig.suptitle("Accuracy over epochs")
@@ -62,6 +68,7 @@ def train_test():
     for ax in axs.flat:
         ax.set(xlabel='epoch', ylabel='accuracy')
     plt.show()
+
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
