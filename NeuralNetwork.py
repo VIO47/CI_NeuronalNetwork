@@ -17,7 +17,7 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
         self.structure = structure
         np.random.seed(50)
-        number_layers = len(structure)
+        self.number_layers = len(structure)
         self.weights = {}
         self.bias = {}
 
@@ -38,39 +38,6 @@ class NeuralNetwork:
             loss -= target * np.log(computed)
         return loss
 
-    def loss_perceptron(self, y_hat, y):
-        return 1.0 * (y - y_hat)
-
-    def inference(self, X):
-        return Func.step(self, np.dot(self.weights["1"].T, X) + self.bias["1"])
-
-    def update_weights(self, X, loss):
-        self.bias["1"] += self.learning_rate * loss
-        self.weights["1"] += self.learning_rate * loss * np.array(X).reshape(2, 1)
-
-   # def update_weights_final_layer(self, X, loss):
-    #    #derivative for softmax
-    #    if(self.activation_function == "softmax")
-    #    self.bias -= self.learning_rate *
-
-    #def update_weights_hidden_layer(self, X, loss):
-        #derivative for relu
-    def train_perceptron(self, X, Y, epochs = 30):
-        accuracy_arr = []
-        for epoch in range(epochs):
-            accuracy = 0
-            for (x, target) in list(zip(X, Y)):
-                Z = NeuralNetwork.inference(self, x)
-                if Z != target:
-                    loss = NeuralNetwork.loss_perceptron(self, Z, target)
-                    NeuralNetwork.update_weights(self, x, loss)
-                else:
-                    accuracy += 1
-            accuracy_arr.append(accuracy / 4.0)
-        return accuracy_arr
-
-
-
     def layer_forward_prop(self, A_prev, W_curr, b_curr, activation):
         Z_curr = np.dot(A_prev, W_curr) + b_curr.T
         if (activation == "relu"):
@@ -79,8 +46,8 @@ class NeuralNetwork:
             activation_function = Func.tanh(self, Z_curr)
         elif (activation == "sigmoid"):
             activation_function = Func.sigmoid(self, Z_curr)
-        elif (activation == "step"):
-            activation_function = Func.step(self, Z_curr)
+        elif (activation == "softmax"):
+            activation_function = Func.softmax(self, Z_curr)
         else:
             raise Exception("Unsupported activation function")
 
@@ -104,29 +71,31 @@ class NeuralNetwork:
             memory_activation[str(index)] = A_prev
             memory_intermediate[str(layer_index)] = Z_curr
 
-            return A_curr, memory_activation, memory_intermediate
+        return A_curr, memory_activation, memory_intermediate
 
     def accuracy(self,y_hat, y):
         return (y_hat == y).all(axis = 0).mean()
 
     def choose_class(self, y_hat):
-        return np.argmax(y_hat)
+        list1 = np.argmax(y_hat, axis = 1)
+        return list(np.asarray(list1) + 1)
 
-
-    def layer_back_prop(self, loss, W_curr, bias, Z_curr, A_prev, activation):
+    def layer_back_prop(self, loss, W_curr, Z_curr, A_prev, activation):
         if(activation == "relu"):
-            activation_function = Func.relu_back(Z_curr, loss)
+            activation_function = Func.relu_back(self, Z_curr)
         elif (activation == "softmax"):
-            activation_function = Func.softmax_back(Z_curr)
+            activation_function = Func.softmax_back(self, Z_curr)
         elif(activation == "tanh"):
-            activation_function = Func.tanh_back(Z_curr)
+            activation_function = Func.tanh_back(self, Z_curr)
+        elif(activation == "sigmoid"):
+            activation_function = Func.sigmoid_back(Z_curr, loss)
         else:
             raise Exception("Unsupported activation function")
 
         dZ_curr = activation_function
-        dW_curr = np.dot(dZ_curr, A_prev.T) / A_prev.shape[1]
-        dbias_curr = np.sum(dZ_curr, axis = 1) / A_prev.shape[1]
-        loss_prev = np.dot(W_curr.T, dZ_curr)
+        dW_curr = np.dot(A_prev.T, dZ_curr) / A_prev.shape[0]
+        dbias_curr = np.sum(dZ_curr, axis = 0) / A_prev.shape[1]
+        loss_prev = np.dot(dZ_curr, dW_curr.T)
 
         return loss_prev, dW_curr, dbias_curr
 
@@ -141,14 +110,12 @@ class NeuralNetwork:
             activation = layer["activation"]
 
             dloss_curr = dloss_prev
-            print(prev_layer)
-            #print(memory_activation[str(prev_layer)])
             A_prev = memory_activation[str(prev_layer)]
             Z_curr = memory_intermediate[str(curr_layer)]
             W_curr = self.weights[str(curr_layer)]
             bias = self.bias[str(curr_layer)]
 
-            dloss_prev, dW_curr, dbias_curr = NeuralNetwork.layer_back_prop(dloss_curr, W_curr, bias, Z_curr, A_prev, activation)
+            dloss_prev, dW_curr, dbias_curr = NeuralNetwork.layer_back_prop(self, dloss_curr, W_curr, Z_curr, A_prev, activation)
 
             #Update process incorporated in back-propagation
             self.weights[str(curr_layer)] = dW_curr
@@ -164,10 +131,10 @@ class NeuralNetwork:
             for (mini_batch_X, mini_batch_y) in zip(batch_X, batch_y):
                 y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, mini_batch_X)
                 predicted_y = NeuralNetwork.choose_class(self, y_hat)
+
                 accuracy = NeuralNetwork.accuracy(self, predicted_y, mini_batch_y)
                 accuracy_hystory.append(accuracy)
 
-                print(aux_activation)
                 NeuralNetwork.full_back_prop(self, predicted_y, mini_batch_y, aux_activation, aux_intermediate)
 
         return accuracy_hystory

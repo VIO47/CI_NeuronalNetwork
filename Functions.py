@@ -12,11 +12,12 @@ class Functions:
         return np.maximum(0, Z)
 
     #Pass a vector for this function and the index of the value inside the vector
-    def softmax(self, Z, index):
-        sum = 0
-        for i in range(7):
-            sum += np.linalg.norm(np.exp(Z[i]))
-        return np.exp(Z[index]) / sum
+    def softmax(self, Z):
+        #exp = np.exp(Z)
+        #return exp / np.sum(exp, axis = 1, keepdims = True)
+        Z -= np.max(Z)
+        sm = (np.exp(Z).T / np.sum(np.exp(Z), axis=0).T).T
+        return sm
 
     def tanh(self, Z):
         return np.tanh(Z)
@@ -31,21 +32,25 @@ class Functions:
     def step_back(self, Z):
         return 0 if Z > 0 else np.Inf
 
-    def relu_back(self, Z, loss):
-        copy = np.array(loss, copy = True)
-        copy[Z <= 0] = 0
-        return copy
+    def relu_back(self, Z):
+       # copy = np.array(loss, copy = True)
+       # for index in range(len(copy)):
+       #     copy[Z <= 0] = 0
+        return np.where(Z > 0, 1, 0)
 
     def softmax_back(self, Z):
-        jacobian_matrix = np.zeros((len(Z), len(Z)))
-        softmax_x = Functions.softmax(Z)
-        for i in range(len(Z)):
-            for j in range(len(Z)):
-                if i == j:
-                    jacobian_matrix[i][j] = softmax_x[i] * (1 - softmax_x[i])
-                else:
-                    jacobian_matrix[i][j] = -softmax_x[i] * softmax_x[j]
-        return jacobian_matrix.diagonal()
+       # jacobian_matrix = np.zeros((len(Z), len(Z)))
+       # softmax_x = Functions.softmax(self, Z)
+       # for i in range(len(Z)):
+       ##     for j in range(len(Z)):
+        #        if i == j:
+         #           jacobian_matrix[i][j] = softmax_x[i] * (1 - softmax_x[i])
+         #       else:
+         #           jacobian_matrix[i][j] = -softmax_x[i] * softmax_x[j]
+        #return jacobian_matrix.diagonal()
+       s = Functions.softmax
+       s.reshape(-1, 1)
+       return np.diagflat(s) - np.dot(s, s.T)
 
     def tanh_back(self, Z):
         return 1 - np.tanh(Z)**2

@@ -19,7 +19,7 @@ def train_ANN():
     structure = [
         {"input_dim": 10, "output_dim": 9, "activation": "relu"},
         {"input_dim": 9, "output_dim": 8, "activation": "relu"},
-        {"input_dim": 8, "output_dim": 7, "activation": "relu"}
+        {"input_dim": 8, "output_dim": 7, "activation": "softmax"}
     ]
     ann = nn(structure, 0.1)
 
@@ -28,9 +28,10 @@ def train_ANN():
     X_test = X_test.reshape([X_test.shape[0], -1])
     accuracy = ann.train(X_train, y_train, 4)
 
-    fig, axs = plt.subplot
-    axs[0].set_title("ANN Training")
-    axs[0].plot(accuracy, 'tab:red')
+    #fig, axs = plt.subplot
+    #axs[0].set_title("ANN Training")
+    #axs[0].plot(accuracy, 'tab:red')
+    print(accuracy)
 
 
 def train_test():
