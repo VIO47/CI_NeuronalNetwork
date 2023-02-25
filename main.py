@@ -7,37 +7,35 @@ from sklearn.model_selection import train_test_split
 from NeuralNetwork import NeuralNetwork as nn
 import matplotlib.pyplot as plt
 from Perceptron import Perceptron as p
-from NN import ANN as ANN
-
 
 def train_ANN():
     X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
     Y = np.loadtxt("data/targets.txt", dtype='i')
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
+    one_hot_encode_y_train = []
+    for y in y_train:
+        arr = list(np.zeros(7))
+        arr[y - 1] = 1
+        one_hot_encode_y_train.append(arr)
+
 
     structure = [
         {"input_dim": 10, "output_dim": 9, "activation": "relu"},
-        {"input_dim": 9, "output_dim": 8, "activation": "relu"},
-        {"input_dim": 8, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 9, "output_dim": 9, "activation": "relu"},
+        {"input_dim": 9, "output_dim": 7, "activation": "softmax"}
     ]
+
     ann = nn(structure, 0.1)
+    loss, pred, acc = ann.train(X_train.T, np.array(one_hot_encode_y_train).T, 3)
 
-    X_train = X_train.reshape([X_train.shape[0], -1])
-    # X_val = X_test.reshape([X_val.shape[0], -1])
-    X_test = X_test.reshape([X_test.shape[0], -1])
-    accuracy = ann.train(X_train, y_train, 1)
-
-    #fig, axs = plt.subplot
-    #axs[0].set_title("ANN Training")
-    #axs[0].plot(accuracy, 'tab:red')
-    print(sum(accuracy) / len(accuracy))
+    plt.plot(loss, 'tab:red')
+    plt.plot(acc, 'tab:blue')
+    plt.show()
+    print(acc[-1])
 
 
 def train_test():
-    # X = np.loadtxt("features.txt", dtype = 'i', delimiter = ',')
-    # Y = np.loadtxt("targets.txt", dtype = 'i')
-    # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
 
     X = [[0.0, 0.0],
          [0.0, 1.0],
@@ -47,10 +45,6 @@ def train_test():
     Y_and = [0, 0, 0, 1]
     Y_or = [0, 1, 1, 1]
     Y_xor = [0, 1, 1, 0]
-
-    # nn_structure = [
-    #     {p(0.1, 2, 1, "step")}
-    # ]
 
     neural_network = p(0.1, 2, 1, "step")
     accuracy_and = neural_network.train(X, Y_and)
@@ -75,9 +69,9 @@ def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     train_ANN()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
