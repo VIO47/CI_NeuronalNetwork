@@ -131,6 +131,11 @@ class NeuralNetwork:
 
         for i in range(epochs):
             f = Func()
+            aux_X = np.copy(X)
+            aux_y = np.copy(y)
+            Func.shuffle_arrays(f, [aux_X, aux_y])
+            aux_X = aux_X.T
+            aux_y = aux_y.T
             # batch_X, batch_y = NeuralNetwork.split_in_batches(self, X, y, batch_size)
             # for (mini_batch_X, mini_batch_y) in zip(batch_X, batch_y):
             #     y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, mini_batch_X)
@@ -142,15 +147,15 @@ class NeuralNetwork:
             #
             #     gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, mini_batch_y, aux_activation, aux_intermediate)
             #     NeuralNetwork.update(self, gradients_weights, gradients_biases)
-            y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, X)
+            y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, aux_X)
 
-            loss = Func.cat_cross_entropy_loss(f, y_hat, y)
+            loss = Func.cat_cross_entropy_loss(f, y_hat, aux_y)
             loss_history.append(loss)
-            accuracy = Func.accuracy(f, y_hat, y)
+            accuracy = Func.accuracy(f, y_hat, aux_y)
             accuracy_history.append(accuracy)
             y_hat_history.append(y_hat)
 
-            gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, y, aux_activation, aux_intermediate)
+            gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, aux_y, aux_activation, aux_intermediate)
             NeuralNetwork.update(self, gradients_weights, gradients_biases)
 
         return loss_history, y_hat_history, accuracy_history

@@ -5,12 +5,16 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 from NeuralNetwork import NeuralNetwork as nn
+from Functions import Functions as func
 import matplotlib.pyplot as plt
 from Perceptron import Perceptron as p
 
 def train_ANN():
+    f = func()
     X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
     Y = np.loadtxt("data/targets.txt", dtype='i')
+    # X, Y = shuffle(X, Y)
+    func.shuffle_arrays(f, [X, Y])
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
     one_hot_encode_y_train = []
@@ -27,7 +31,7 @@ def train_ANN():
     ]
 
     ann = nn(structure, 0.1)
-    loss, pred, acc = ann.train(X_train.T, np.array(one_hot_encode_y_train).T, 3)
+    loss, pred, acc = ann.train(X_train, np.array(one_hot_encode_y_train), 3)
 
     plt.plot(loss, 'tab:red')
     plt.plot(acc, 'tab:blue')
@@ -72,6 +76,12 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     train_ANN()
+    # f = func()
+    # a = [1, 2, 3, 4]
+    # b = [[1, 2], [3, 4], [5, 6], [7, 8]]
+    # func.shuffle_arrays(f, [a, b])
+    # print(a)
+    # print(b)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
