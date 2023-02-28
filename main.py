@@ -40,7 +40,7 @@ def train_ANN():
     ]
 
     ann = nn(structure, 0.1)
-    accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 5, 3000)
+    accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 3000)
     y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test)
 
     #loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train))
@@ -50,6 +50,7 @@ def train_ANN():
     # plt.plot(accuracies_train, 'tab:blue')
     # plt.show()
 
+    plt.title("Test performance")
     plt.plot(accuracies_test, 'tab:blue')
     plt.show()
 

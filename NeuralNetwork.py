@@ -17,10 +17,12 @@ class NeuralNetwork:
             self.bias[layer_index] = np.zeros([output_size, 1])
 
             if layer_index == 3:
-                self.weights[layer_index] = np.random.randn(output_size, input_size)
-                self.weights[layer_index] = np.random.uniform(-np.sqrt(6 / (input_size + output_size)), np.sqrt(6 / (input_size + output_size)), [output_size, input_size])
+                #self.weights[layer_index] = np.random.randn(output_size, input_size)
+                #self.weights[layer_index] = np.random.uniform(-np.sqrt(6 / (input_size + output_size)), np.sqrt(6 / (input_size + output_size)), [output_size, input_size])
+                self.weights[layer_index] = np.random.normal(0, 1 / input_size, [output_size, input_size])
             else:
-                self.weights[layer_index] = np.random.randn(output_size, input_size) * np.sqrt(2.0 / input_size)
+                self.weights[layer_index] = np.random.normal(0, 2 / input_size, [output_size, input_size])
+                #self.weights[layer_index] = np.random.randn(output_size, input_size) * np.sqrt(2.0 / input_size)
 
     def layer_forward_prop(self, W_curr, A_prev, B_curr, activation):
         f = Func()
