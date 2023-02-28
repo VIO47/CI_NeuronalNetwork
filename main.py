@@ -12,42 +12,49 @@ def train_ANN():
     f = func()
     X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
     Y = np.loadtxt("data/targets.txt", dtype='i')
+    func.normalize_data(f, X)
+    func.normalize_data(f, Y)
     # X, Y = shuffle(X, Y)
     func.shuffle_arrays(f, [X, Y])
-    X_train, X_valid, X_test, y_train, y_valid, y_test = func.train_test_valid_split(f, X, Y)
+    X_train, X_test, y_train, y_test = func.train_test_split(f, X, Y)
 
     one_hot_encode_y_train = []
     for y in y_train:
         arr = list(np.zeros(7))
         arr[y - 1] = 1
         one_hot_encode_y_train.append(arr)
+    one_hot_encode_y_train = np.array(one_hot_encode_y_train)
 
     one_hot_encode_y_test = []
     for y in y_test:
         arr = list(np.zeros(7))
         arr[y - 1] = 1
         one_hot_encode_y_test.append(arr)
+    one_hot_encode_y_test = np.array(one_hot_encode_y_test)
 
 
     structure = [
-        {"input_dim": 10, "output_dim": 9, "activation": "relu"},
-        {"input_dim": 9, "output_dim": 8, "activation": "relu"},
-        {"input_dim": 8, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 10, "output_dim": 17, "activation": "relu"},
+        {"input_dim": 17, "output_dim": 13, "activation": "relu"},
+        {"input_dim": 13, "output_dim": 7, "activation": "softmax"}
     ]
 
     ann = nn(structure, 0.1)
-    loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train), 3)
-    pred_test, acc_test = ann.predict(X_test, np.array(one_hot_encode_y_test))
+    accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 5, 3000)
+    y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test)
 
-    plt.plot(loss_train, 'tab:red')
-    plt.plot(acc_train, 'tab:blue')
+    #loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train))
+    #pred_test, acc_test = ann.predict(X_test, np.array(one_hot_encode_y_test))
+
+    # plt.plot(loss_train, 'tab:red')
+    # plt.plot(accuracies_train, 'tab:blue')
+    # plt.show()
+
+    plt.plot(accuracies_test, 'tab:blue')
     plt.show()
 
-    plt.plot(acc_test, 'tab:blue')
-    plt.show()
-
-    print(acc_train[-1])
-    print(acc_test[-1])
+    print(accuracies_train)
+    print(accuracies_test[-1])
 
 
 def train_test():
@@ -87,12 +94,7 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     train_ANN()
-    # f = func()
-    # a = [1, 2, 3, 4]
-    # b = [[1, 2], [3, 4], [5, 6], [7, 8]]
-    # func.shuffle_arrays(f, [a, b])
-    # print(a)
-    # print(b)
+
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

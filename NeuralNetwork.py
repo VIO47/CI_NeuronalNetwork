@@ -14,24 +14,13 @@ class NeuralNetwork:
             layer_index = index + 1
             input_size = layer["input_dim"]
             output_size = layer["output_dim"]
+            self.bias[layer_index] = np.zeros([output_size, 1])
+
             if layer_index == 3:
                 self.weights[layer_index] = np.random.randn(output_size, input_size)
-                for n in self.weights[layer_index]:
-                    for i in range(len(n)):
-                        if (n[i] < 0):
-                            n[i] = -1
-                            n[i] = n[i] * np.random.uniform(0, np.sqrt(6 / (input_size + output_size)))
-                        else:
-                            n[i] = 1
-                            n[i] = np.random.uniform(0, np.sqrt(6 / (input_size + output_size)))
+                self.weights[layer_index] = np.random.uniform(-np.sqrt(6 / (input_size + output_size)), np.sqrt(6 / (input_size + output_size)), [output_size, input_size])
             else:
                 self.weights[layer_index] = np.random.randn(output_size, input_size) * np.sqrt(2.0 / input_size)
-            #self.weights[layer_index] = np.random.randn(output_size, input_size) * 0.1
-           # print(self.weights[layer_index])
-            self.bias[layer_index] = np.random.randn(output_size, 1) * 0.1
-
-    # def accuracy(self, y_hat, y):
-    #     return np.mean(np.argmax(y_hat, axis=1) == y)
 
     def layer_forward_prop(self, W_curr, A_prev, B_curr, activation):
         f = Func()
@@ -70,10 +59,6 @@ class NeuralNetwork:
             memory_intermediate[layer_index] = Z_curr
 
         return A_curr, memory_activation, memory_intermediate
-
-    # def choose_class(self, y_hat):
-    #     list1 = np.argmax(y_hat, axis = 1)
-    #     return list(np.asarray(list1) + 1)
 
     def final_layer_back_prop(self, W_curr, Z_curr, A_prev, y):
         A_prev_cols = A_prev.shape[1]
@@ -137,7 +122,7 @@ class NeuralNetwork:
             self.weights[curr_idx] -= self.learning_rate * gradients_weights[curr_idx]
             self.bias[curr_idx] -= self.learning_rate * gradients_biases[curr_idx]
 
-    def train(self, X, y, batch_size, epochs = 5000):
+    def train(self, X, y, batch_size=None, epochs = 1000):
         accuracy_history = []
         loss_history = []
         y_hat_history = []
@@ -185,6 +170,43 @@ class NeuralNetwork:
             acc_history.append(Func.accuracy(f, result, y))
         y_hat = np.argmax(result, axis = 0)
         return y_hat, acc_history
+
+    def k_fold_cross_validation(self, X, y, k, epochs, batch_size=None):
+        """
+        Perform k-fold cross validation on a neural network model.
+
+        Parameters:
+        X (numpy array): The input data.
+        y (numpy array): The target data.
+        k (int): The number of folds to use.
+        model_fn (function): A function that returns a compiled Keras model.
+        epochs (int): The number of epochs to train for.
+        batch_size (int): The batch size to use during training.
+
+        Returns:
+        results (list): A list of the validation accuracies for each fold.
+        """
+
+        fold_size = len(X) // k
+        accuracies = []
+
+        for i in range(k):
+            print(f"Processing fold {i + 1}/{k}...")
+            start = i * fold_size
+            end = (i + 1) * fold_size
+
+            x_val = X[start:end]
+            y_val = y[start:end]
+
+            x_train = np.concatenate([X[:start], X[end:]])
+            y_train = np.concatenate([y[:start], y[end:]])
+
+            loss_train, y_hat_train, accuracy_train = NeuralNetwork.train(self, x_train, y_train, epochs)
+            y_hat_validation, accuracy_validation = NeuralNetwork.predict(self, x_val, y_val)
+            print(accuracy_validation[-1])
+            accuracies.append(accuracy_validation[-1])
+
+        return np.array(accuracies).mean()
 
     # def split_in_batches(self, X, Y, batch_size):
     #     batches_X = []
