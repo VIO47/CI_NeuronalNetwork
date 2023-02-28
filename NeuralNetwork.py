@@ -2,10 +2,10 @@ import numpy as np
 from Functions import Functions as Func
 
 class NeuralNetwork:
-    def __init__(self, structure, learning_rate):
+    def __init__(self, structure, learning_rate, seed = None):
         self.learning_rate = learning_rate
         self.structure = structure
-        np.random.seed(50)
+        np.random.seed(seed)
         self.number_layers = len(structure)
         self.weights = {}
         self.bias = {}
