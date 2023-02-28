@@ -14,7 +14,20 @@ class NeuralNetwork:
             layer_index = index + 1
             input_size = layer["input_dim"]
             output_size = layer["output_dim"]
-            self.weights[layer_index] = np.random.randn(output_size, input_size) * 0.1
+            if layer_index == 3:
+                self.weights[layer_index] = np.random.randn(output_size, input_size)
+                for n in self.weights[layer_index]:
+                    for i in range(len(n)):
+                        if (n[i] < 0):
+                            n[i] = -1
+                            n[i] = n[i] * np.random.uniform(0, np.sqrt(6 / (input_size + output_size)))
+                        else:
+                            n[i] = 1
+                            n[i] = np.random.uniform(0, np.sqrt(6 / (input_size + output_size)))
+            else:
+                self.weights[layer_index] = np.random.randn(output_size, input_size) * np.sqrt(2.0 / input_size)
+            #self.weights[layer_index] = np.random.randn(output_size, input_size) * 0.1
+           # print(self.weights[layer_index])
             self.bias[layer_index] = np.random.randn(output_size, 1) * 0.1
 
     # def accuracy(self, y_hat, y):
@@ -124,7 +137,7 @@ class NeuralNetwork:
             self.weights[curr_idx] -= self.learning_rate * gradients_weights[curr_idx]
             self.bias[curr_idx] -= self.learning_rate * gradients_biases[curr_idx]
 
-    def train(self, X, y, batch_size, epochs = 3000):
+    def train(self, X, y, batch_size, epochs = 5000):
         accuracy_history = []
         loss_history = []
         y_hat_history = []
