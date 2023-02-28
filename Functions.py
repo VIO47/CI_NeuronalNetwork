@@ -80,3 +80,22 @@ class Functions:
         for arr in arrays:
             rstate = np.random.RandomState(seed)
             rstate.shuffle(arr)
+
+    def train_test_valid_split(self, X, y):
+        ratio_train = 0.7
+        ratio_valid = 0.15
+
+        rows = X.shape[0]
+        train_size = int(rows * ratio_train)
+        valid_size = int(rows * ratio_valid)
+
+        X_train = X[0:train_size]
+        y_train = y[0:train_size]
+
+        X_valid = X[train_size:(train_size + valid_size)]
+        y_valid = y[train_size:(train_size + valid_size)]
+
+        X_test = X[(train_size + valid_size):]
+        y_test = y[(train_size + valid_size):]
+
+        return X_train, X_valid, X_test, y_train, y_valid, y_test

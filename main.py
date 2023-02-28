@@ -3,7 +3,6 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
-from sklearn.model_selection import train_test_split
 from NeuralNetwork import NeuralNetwork as nn
 from Functions import Functions as func
 import matplotlib.pyplot as plt
@@ -15,7 +14,7 @@ def train_ANN():
     Y = np.loadtxt("data/targets.txt", dtype='i')
     # X, Y = shuffle(X, Y)
     func.shuffle_arrays(f, [X, Y])
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
+    X_train, X_valid, X_test, y_train, y_valid, y_test = func.train_test_valid_split(f, X, Y)
 
     one_hot_encode_y_train = []
     for y in y_train:
