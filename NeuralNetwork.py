@@ -160,6 +160,19 @@ class NeuralNetwork:
 
         return loss_history, y_hat_history, accuracy_history
 
+    def predict(self, X, y):
+        f = Func()
+        acc_history = []
+        result = X.T
+        y = y.T
+
+        for layer_idx, layer in enumerate(self.structure):
+            curr_idx = layer_idx + 1
+            result = np.dot(self.weights[curr_idx], result) + self.bias[curr_idx]
+            acc_history.append(Func.accuracy(f, result, y))
+        y_hat = np.argmax(result, axis = 0)
+        return y_hat, acc_history
+
     # def split_in_batches(self, X, Y, batch_size):
     #     batches_X = []
     #     batches_Y = []

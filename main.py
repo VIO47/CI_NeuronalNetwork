@@ -22,20 +22,32 @@ def train_ANN():
         arr[y - 1] = 1
         one_hot_encode_y_train.append(arr)
 
+    one_hot_encode_y_test = []
+    for y in y_test:
+        arr = list(np.zeros(7))
+        arr[y - 1] = 1
+        one_hot_encode_y_test.append(arr)
+
 
     structure = [
         {"input_dim": 10, "output_dim": 9, "activation": "relu"},
-        {"input_dim": 9, "output_dim": 9, "activation": "relu"},
-        {"input_dim": 9, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 9, "output_dim": 8, "activation": "relu"},
+        {"input_dim": 8, "output_dim": 7, "activation": "softmax"}
     ]
 
     ann = nn(structure, 0.1)
-    loss, pred, acc = ann.train(X_train, np.array(one_hot_encode_y_train), 3)
+    loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train), 3)
+    pred_test, acc_test = ann.predict(X_test, np.array(one_hot_encode_y_test))
 
-    plt.plot(loss, 'tab:red')
-    plt.plot(acc, 'tab:blue')
+    plt.plot(loss_train, 'tab:red')
+    plt.plot(acc_train, 'tab:blue')
     plt.show()
-    print(acc[-1])
+
+    plt.plot(acc_test, 'tab:blue')
+    plt.show()
+
+    print(acc_train[-1])
+    print(acc_test[-1])
 
 
 def train_test():
