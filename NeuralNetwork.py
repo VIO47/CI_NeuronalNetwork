@@ -170,8 +170,9 @@ class NeuralNetwork:
         for layer_idx, layer in enumerate(self.structure):
             curr_idx = layer_idx + 1
             result = np.dot(self.weights[curr_idx], result) + self.bias[curr_idx]
-            if(make_accuracy):
-                acc_history.append(Func.accuracy(f, result, y))
+
+        if(make_accuracy):
+            acc_history.append(Func.accuracy(f, result, y))
         y_hat = np.argmax(result, axis = 0)
         return y_hat, acc_history
 
