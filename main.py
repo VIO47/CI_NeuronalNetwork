@@ -33,11 +33,11 @@ def train_ANN():
         one_hot_encode_y_test.append(arr)
     one_hot_encode_y_test = np.array(one_hot_encode_y_test)
 
-#16 un layer
+
     structure = [
-        {"input_dim": 10, "output_dim": 32, "activation": "relu"},
-        #{"input_dim": 9, "output_dim": 9, "activation": "relu"},
-        {"input_dim": 32, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 10, "output_dim": 10, "activation": "relu"},
+        {"input_dim": 10, "output_dim": 13, "activation": "relu"},
+        {"input_dim": 13, "output_dim": 7, "activation": "softmax"}
     ]
 
     ann = nn(structure, 0.1)
@@ -48,7 +48,7 @@ def train_ANN():
     y_predict, accuracies_empty = ann.predict(unknown, [], False)
     file = open("predictions.txt", "w+")
     for label in y_predict:
-        file.write(str(label) + "\n")
+        file.write(label)
     file.close()
 
 
@@ -64,7 +64,7 @@ def train_ANN():
     plt.show()
 
     print(accuracies_train)
-    print(accuracies_test)
+    print(accuracies_test[-1])
 
 
 def train_test():
