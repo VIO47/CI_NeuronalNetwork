@@ -12,6 +12,7 @@ def train_ANN():
     f = func()
     X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
     Y = np.loadtxt("data/targets.txt", dtype='i')
+    unknown = np.loadtxt("data/unknown.txt", dtype='f', delimiter=',')
     func.normalize_data(f, X)
     func.normalize_data(f, Y)
     # X, Y = shuffle(X, Y)
@@ -34,14 +35,22 @@ def train_ANN():
 
 
     structure = [
-        {"input_dim": 10, "output_dim": 17, "activation": "relu"},
-        {"input_dim": 17, "output_dim": 13, "activation": "relu"},
+        {"input_dim": 10, "output_dim": 10, "activation": "relu"},
+        {"input_dim": 10, "output_dim": 13, "activation": "relu"},
         {"input_dim": 13, "output_dim": 7, "activation": "softmax"}
     ]
 
     ann = nn(structure, 0.1)
     accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 3000)
-    y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test)
+    y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test, True)
+
+    #Predict the unknownn labels
+    y_predict, accuracies_empty = ann.predict(unknown, [], False)
+    file = open("predictions.txt", "w+")
+    for label in y_predict:
+        file.write(label)
+    file.close()
+
 
     #loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train))
     #pred_test, acc_test = ann.predict(X_test, np.array(one_hot_encode_y_test))

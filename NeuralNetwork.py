@@ -160,16 +160,18 @@ class NeuralNetwork:
 
         return loss_history, y_hat_history, accuracy_history
 
-    def predict(self, X, y):
+    def predict(self, X, y, make_accuracy):
         f = Func()
         acc_history = []
         result = X.T
-        y = y.T
+        if(make_accuracy):
+            y = y.T
 
         for layer_idx, layer in enumerate(self.structure):
             curr_idx = layer_idx + 1
             result = np.dot(self.weights[curr_idx], result) + self.bias[curr_idx]
-            acc_history.append(Func.accuracy(f, result, y))
+            if(make_accuracy):
+                acc_history.append(Func.accuracy(f, result, y))
         y_hat = np.argmax(result, axis = 0)
         return y_hat, acc_history
 
@@ -204,7 +206,7 @@ class NeuralNetwork:
             y_train = np.concatenate([y[:start], y[end:]])
 
             loss_train, y_hat_train, accuracy_train = NeuralNetwork.train(self, x_train, y_train, epochs)
-            y_hat_validation, accuracy_validation = NeuralNetwork.predict(self, x_val, y_val)
+            y_hat_validation, accuracy_validation = NeuralNetwork.predict(self, x_val, y_val, True)
             print(accuracy_validation[-1])
             accuracies.append(accuracy_validation[-1])
 
