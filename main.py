@@ -8,6 +8,46 @@ from Functions import Functions as func
 import matplotlib.pyplot as plt
 from Perceptron import Perceptron as p
 
+
+def plot_confusion_matrix(y_true, y_pred, classes):
+    """
+    This function calculates and plots the confusion matrix for a neural network with 7 labels.
+    y_true: list or array of true labels.
+    y_pred: list or array of predicted labels.
+    classes: list of class names, ordered by their corresponding numerical label.
+    """
+
+    # Calculate the confusion matrix
+    num_classes = len(classes)
+    confusion_matrix = np.zeros((num_classes, num_classes))
+    for i in range(len(y_true)):
+        true_class = int(y_true[i]) - 1
+        pred_class = int(y_pred[i])
+        confusion_matrix[true_class][pred_class] += 1
+
+    # Normalize the confusion matrix
+    row_sums = confusion_matrix.sum(axis=1)
+    normalized_matrix = confusion_matrix / row_sums[:, np.newaxis]
+    # Plot the confusion matrix
+    plt.imshow(normalized_matrix, cmap='Blues')
+    plt.colorbar()
+    tick_marks = np.arange(num_classes)
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    # Add the normalized values to the plot
+    threshold = normalized_matrix.max() / 2.
+    for i in range(num_classes):
+        for j in range(num_classes):
+            plt.text(j, i, '{:.2f}'.format(normalized_matrix[i, j]),
+                     horizontalalignment="center",
+                     color="white" if normalized_matrix[i, j] > threshold else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.title('Confusion matrix')
+    plt.show()
+
 def train_ANN():
     f = func()
     X = np.loadtxt("data/features.txt", dtype='f', delimiter=',')
@@ -35,14 +75,15 @@ def train_ANN():
 
 
     structure = [
-        {"input_dim": 10, "output_dim": 10, "activation": "relu"},
-        {"input_dim": 10, "output_dim": 13, "activation": "relu"},
-        {"input_dim": 13, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 10, "output_dim": 32, "activation": "relu"},
+        {"input_dim": 32, "output_dim": 7, "activation": "softmax"}
     ]
 
-    ann = nn(structure, 0.1)
+    ann = nn(structure, 0.01)
     accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 3000)
     y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test, True)
+    class_names = ['1', '2', '3', '4', '5', '6', '7']
+    plot_confusion_matrix(y_test, y_hat_test, class_names)
 
     #Predict the unknownn labels
     y_predict, accuracies_empty = ann.predict(unknown, [], False)

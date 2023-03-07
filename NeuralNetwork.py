@@ -130,9 +130,6 @@ class NeuralNetwork:
         loss_history = []
         y_hat_history = []
         loss_validation_history = []
-        print(x_val.shape)
-        print(y_val.shape)
-        print(X.shape)
         for i in range(epochs):
             f = Func()
             aux_X = np.copy(X)
@@ -217,17 +214,12 @@ class NeuralNetwork:
             y_train = np.concatenate([y[:start], y[end:]])
 
             loss_train, y_hat_train, accuracy_train, loss_validation = NeuralNetwork.train(self, x_train, y_train, x_val, y_val, epochs)
-            print(x_val.shape)
-            print(y_val.shape)
-            print(x_train.shape)
             y_hat_validation, accuracy_validation = NeuralNetwork.predict(self, x_val, y_val, True)
             print(accuracy_validation[-1])
             accuracies.append(accuracy_validation[-1])
             for i in range(3000):
                 loss_train_mean[i] = loss_train_mean[i] + loss_train[i]
                 loss_validation_mean[i] = loss_validation_mean[i] + loss_validation[i]
-            print(len(loss_train_mean))
-            print(len(loss_validation_mean))
 
         for i in range(len(loss_train_mean)):
             loss_train_mean[i] = loss_train_mean[i]/k
