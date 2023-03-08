@@ -126,10 +126,12 @@ class NeuralNetwork:
             self.bias[curr_idx] -= self.learning_rate * gradients_biases[curr_idx]
 
     def train(self, X, y, x_val=None, y_val=None, epochs=1000):
-        accuracy_history = []
-        loss_history = []
+        accuracy_train_history = []
+        loss_train_history = []
         y_hat_history = []
         loss_validation_history = []
+        accuracy_validation_history = []
+
         for i in range(epochs):
             f = Func()
             aux_X = np.copy(X)
@@ -137,49 +139,44 @@ class NeuralNetwork:
             Func.shuffle_arrays(f, [aux_X, aux_y])
             aux_X = aux_X.T
             aux_y = aux_y.T
-            # batch_X, batch_y = NeuralNetwork.split_in_batches(self, X, y, batch_size)
-            # for (mini_batch_X, mini_batch_y) in zip(batch_X, batch_y):
-            #     y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, mini_batch_X)
-            #
-            #     loss = Func.cat_cross_entropy_loss(f, y_hat, mini_batch_y)
-            #     loss_history.append(loss)
-            #     accuracy = Func.accuracy(f, y_hat, mini_batch_y)
-            #     accuracy_history.append(accuracy)
-            #
-            #    gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, mini_batch_y, aux_activation, aux_intermediate)
-            #     NeuralNetwork.update(self, gradients_weights, gradients_biases)
             y_hat, aux_activation, aux_intermediate = NeuralNetwork.full_forward_prop(self, aux_X)
             y_hat_val, aux_activation_val, aux_intermediate_val = NeuralNetwork.full_forward_prop(self, x_val.T)
 
             loss_validation = Func.cat_cross_entropy_loss(f, y_hat_val, y_val.T)
             loss_validation_history.append(loss_validation)
 
-            loss = Func.cat_cross_entropy_loss(f, y_hat, aux_y)
-            loss_history.append(loss)
-            accuracy = Func.accuracy(f, y_hat, aux_y)
-            accuracy_history.append(accuracy)
+            loss_train = Func.cat_cross_entropy_loss(f, y_hat, aux_y)
+            loss_train_history.append(loss_train)
+
+            accuracy_validation = Func.accuracy(f, y_hat_val, y_val.T)
+            accuracy_validation_history.append(accuracy_validation)
+
+            accuracy_train = Func.accuracy(f, y_hat, aux_y)
+            accuracy_train_history.append(accuracy_train)
+
             y_hat_history.append(y_hat)
 
-            gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, aux_y, aux_activation, aux_intermediate)
+            gradients_weights, gradients_biases = NeuralNetwork.full_back_prop(self, y_hat, aux_y, aux_activation,
+                                                                     aux_intermediate)
             NeuralNetwork.update(self, gradients_weights, gradients_biases)
 
-        return loss_history, y_hat_history, accuracy_history, loss_validation_history
+        return y_hat_history, accuracy_train_history, accuracy_validation_history, loss_train_history, loss_validation_history
 
     def predict(self, X, y, make_accuracy):
         f = Func()
-        acc_history = []
+        accuracy = 0
         result = X.T
-        if(make_accuracy):
+        if (make_accuracy):
             y = y.T
 
         for layer_idx, layer in enumerate(self.structure):
             curr_idx = layer_idx + 1
             result = np.dot(self.weights[curr_idx], result) + self.bias[curr_idx]
 
-        if(make_accuracy):
-            acc_history.append(Func.accuracy(f, result, y))
-        y_hat = np.argmax(result, axis = 0)
-        return y_hat, acc_history
+        if (make_accuracy):
+            accuracy = Func.accuracy(f, result, y)
+        y_hat = np.argmax(result, axis=0)
+        return y_hat, accuracy
 
     def k_fold_cross_validation(self, X, y, k, epochs, batch_size=None):
         """
@@ -199,8 +196,10 @@ class NeuralNetwork:
 
         fold_size = len(X) // k
         accuracies = []
-        loss_train_mean = np.zeros(3000)
-        loss_validation_mean = np.zeros(3000)
+        loss_train_mean = np.zeros(epochs)
+        loss_validation_mean = np.zeros(epochs)
+        accuracies_validation_mean = np.zeros(epochs)
+        accuracies_train_mean = np.zeros(epochs)
 
         for i in range(k):
             print(f"Processing fold {i + 1}/{k}...")
@@ -213,34 +212,24 @@ class NeuralNetwork:
             x_train = np.concatenate([X[:start], X[end:]])
             y_train = np.concatenate([y[:start], y[end:]])
 
-            loss_train, y_hat_train, accuracy_train, loss_validation = NeuralNetwork.train(self, x_train, y_train, x_val, y_val, epochs)
-            y_hat_validation, accuracy_validation = NeuralNetwork.predict(self, x_val, y_val, True)
-            print(accuracy_validation[-1])
-            accuracies.append(accuracy_validation[-1])
-            for i in range(3000):
+            y_hat_train, accuracy_train, accuracy_validation, loss_train, loss_validation = NeuralNetwork.train(self, x_train,
+                                                                                                      y_train, x_val,
+                                                                                                      y_val, epochs)
+
+            for i in range(epochs):
                 loss_train_mean[i] = loss_train_mean[i] + loss_train[i]
                 loss_validation_mean[i] = loss_validation_mean[i] + loss_validation[i]
+                accuracies_validation_mean[i] = accuracies_validation_mean[i] + accuracy_validation[i]
+                accuracies_train_mean[i] = accuracies_train_mean[i] + accuracy_train[i]
 
         for i in range(len(loss_train_mean)):
-            loss_train_mean[i] = loss_train_mean[i]/k
-            loss_validation_mean[i] = loss_validation_mean[i]/k
+            loss_train_mean[i] = loss_train_mean[i] / k
+            loss_validation_mean[i] = loss_validation_mean[i] / k
+            accuracies_validation_mean[i] = accuracies_validation_mean[i] / k
+            accuracies_train_mean[i] = accuracies_train_mean[i] / k
 
-        from matplotlib import pyplot as plt
-        plt.plot(loss_train_mean, 'tab:red')
-        plt.plot(loss_validation_mean, 'tab:blue')
-        plt.show()
-        return np.array(accuracies).mean()
+        return accuracies_train_mean, accuracies_validation_mean, loss_train_mean, loss_validation_mean
 
-    # def split_in_batches(self, X, Y, batch_size):
-    #     batches_X = []
-    #     batches_Y = []
-    #     for i in range(int(len(X) / batch_size + 1)):
-    #         mini_X = X[i * batch_size : (i + 1) * batch_size]
-    #         batches_X.append(mini_X)
-    #         mini_Y = Y[i * batch_size : (i + 1) * batch_size]
-    #         batches_Y.append(mini_Y)
-    #
-    #     return batches_X, batches_Y
 
 
 

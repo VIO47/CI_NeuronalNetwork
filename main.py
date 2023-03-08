@@ -75,22 +75,34 @@ def train_ANN():
 
 
     structure = [
-        {"input_dim": 10, "output_dim": 32, "activation": "relu"},
-        {"input_dim": 32, "output_dim": 7, "activation": "softmax"}
+        {"input_dim": 10, "output_dim": 13, "activation": "relu"},
+        {"input_dim": 13, "output_dim": 10, "activation": "relu"},
+        {"input_dim": 10, "output_dim": 7, "activation": "softmax"}
     ]
 
-    ann = nn(structure, 0.01)
-    accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 3000)
-    y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test, True)
-    class_names = ['1', '2', '3', '4', '5', '6', '7']
-    plot_confusion_matrix(y_test, y_hat_test, class_names)
+    # ann = nn(structure, 0.01)
+    # accuracies_train, accuracies_validation, loss_train_mean, loss_validation_mean = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 1000)
+    #
+    # plt.title("Train Loss vs Validation Loss")
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.plot(loss_train_mean, 'tab:red', label="Train")
+    # plt.plot(loss_validation_mean, 'tab:blue', label="Validation")
+    # plt.legend(loc="upper right")
+    # plt.show()
+
+    # ann = nn(structure, 0.01)
+    # accuracies_train = ann.k_fold_cross_validation(X_train, one_hot_encode_y_train, 10, 3000)
+    # y_hat_test, accuracies_test = ann.predict(X_test, one_hot_encode_y_test, True)
+    # class_names = ['1', '2', '3', '4', '5', '6', '7']
+    # plot_confusion_matrix(y_test, y_hat_test, class_names)
 
     #Predict the unknownn labels
-    y_predict, accuracies_empty = ann.predict(unknown, [], False)
-    file = open("predictions.txt", "w+")
-    for label in y_predict:
-        file.write(label)
-    file.close()
+    # y_predict, accuracies_empty = ann.predict(unknown, [], False)
+    # file = open("predictions.txt", "w+")
+    # for label in y_predict:
+    #     file.write(label)
+    # file.close()
 
 
     #loss_train, pred_train, acc_train = ann.train(X_train, np.array(one_hot_encode_y_train))
@@ -100,12 +112,24 @@ def train_ANN():
     # plt.plot(accuracies_train, 'tab:blue')
     # plt.show()
 
-    plt.title("Test performance")
-    plt.plot(accuracies_test, 'tab:blue')
-    plt.show()
+    # plt.title("Test performance")
+    # plt.plot(accuracies_test, 'tab:blue')
+    # plt.show()
+    #
+    # print(accuracies_train)
+    # print(accuracies_test[-1])
 
-    print(accuracies_train)
-    print(accuracies_test[-1])
+    plt.title("Validation Performance")
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    colors = ['blue', 'red', 'pink', 'green', 'yellow', 'magenta', 'olive', 'orange', 'cyan', 'purple']
+    for i in range(10):
+        ann = nn(structure, 0.01)
+        accuracies_train, accuracies_validation, loss_train_mean, loss_validation_mean = ann.k_fold_cross_validation(
+            X_train, one_hot_encode_y_train, 10, 1000)
+        plt.plot(accuracies_validation, c=colors[i], label=f"Val {i + 1}")
+    plt.legend(loc="upper left")
+    plt.show()
 
 
 def train_test():
